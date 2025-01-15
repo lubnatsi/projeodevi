@@ -1,26 +1,34 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using NAudio;
+using NAudio.Wave;
 
-namespace PlakSatisUygulamasi
+namespace Müzik_Ürünleri_Alışveriş_Sistemi
 {
-    public class Enstrüman
+    public class Müzik
     {
-        public string EnstrümanAd;
-        public string EnstrümanTur;
-        public double EnstrümanFiyat;
+        public string Ad;
+        public double Fiyat;
+        public string Sanatci;
 
+        public override string ToString()
+        {
+            return $"{Ad}, {Sanatci} - Fiyat: {Fiyat} TL";
+        }
+    }
+
+    public class Enstrüman : Müzik // Miras alma, kalıtım
+    {
+        public string EnstrümanTur;
         // Yapıcı metod (constructor)
         public Enstrüman(string enstrüman_tur, string enstrüman_ad, double enstrüman_fiyat)
         {
             EnstrümanTur = enstrüman_tur;
-            EnstrümanAd = enstrüman_ad;
-            EnstrümanFiyat = enstrüman_fiyat;
+            Ad = enstrüman_ad;
+            Fiyat = enstrüman_fiyat;
         }
-        public override string ToString()
-        {
-            return $"{EnstrümanAd} - Fiyat: {EnstrümanFiyat} TL";
-        }
+        
     }
 
     class EnstrümanYonetimi
@@ -31,20 +39,29 @@ namespace PlakSatisUygulamasi
         {
             Enstrümanlar = new List<Enstrüman>
             {
-                new Enstrüman("Gitar", "Klasik Gitar", 1200),
-                new Enstrüman("Gitar", "Bass Gitar", 2000),
-                new Enstrüman("Gitar", "Elektronik Gitar", 3000),
+                new Enstrüman("Gitar", "Fender ESC-110 Educational Series Classical NAT", 10200),
+                new Enstrüman("Gitar", "IBANEZ GSR180-CM Bas Gitar", 10900),
+                new Enstrüman("Gitar", "Kozmos KST-57HSS-GMN-BK 57 HSS Akçaağaç Klavye Siyah Elektro Gitar", 6900),
+                new Enstrüman("Gitar", "Godin Concert Clasica II Elektro Klasik Gitar (Natural)", 52072),
+                new Enstrüman("Gitar", "Yamaha C40M Klasik Gitar (Mat Natural)", 6600),
 
-                new Enstrüman("Piyano", "Akustik Piyano", 15000),
-                new Enstrüman("Piyano", "Dijital Piyano", 7000),
+                new Enstrüman("Piyano", "Fenix FDP-1 Dijital Taşınabilir Piyano", 11319),
+                new Enstrüman("Piyano", "Casio CDP-S360 88 Tuşlu Dijital Piyano (Siyah)", 17500),
+                new Enstrüman("Piyano", "Fenix C-811 Taşınabilir Dijital Piyano Seti (Siyah)", 15695),
+                new Enstrüman("Piyano", "Donner SE-1 Dijital Piyano (Siyah)", 20500),
+                new Enstrüman("Piyano", "Peratron PA-61 61 Tuşlu Org (Adaptör ve Notalık Hediyeli)", 7118),
 
-                new Enstrüman("Keman", "Akustik Keman", 1000),
-                new Enstrüman("Keman", "Elektronik Keman", 2500),
+                new Enstrüman("Keman", "Stentor 1865/A The Messina 4/4 Keman", 4693),
+                new Enstrüman("Keman", "Stentor 'thelami' 1016/C Laminate 3/4 Keman", 4693),
+                new Enstrüman("Keman", "Eastar EVA-3 3/4 Keman Seti (Natural)", 4317),
+                new Enstrüman("Keman", "Yamaha V5SC 3/4 Keman (Natural)", 22999),
+                new Enstrüman("Keman", "Kinglos DSG 1310 DGS Series 4/4 Keman", 8722),
             };
         }
 
-        public void EnstrümanTürleriListele(string enstrüman_tur)
-        {
+        public void Listele(string enstrüman_tur) //Overload metod!
+        {   //.Where(e => e.EnstrümanTur.Equals(enstrüman_tur, StringComparison.OrdinalIgnoreCase)) Plaklar listesinden, EnstrümanTur özelliği enstrüman_tur değişkenine eşit olanları filtreler (büyük/küçük harf farkı gözetmeden).
+            //.ToList() Filtrelenen sonuçları bir listeye dönüştür.
             var secilenEnstrümanlar = Enstrümanlar.Where(e => e.EnstrümanTur.Equals(enstrüman_tur, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (secilenEnstrümanlar.Count == 0)
@@ -69,47 +86,65 @@ namespace PlakSatisUygulamasi
             }
             return null;
         }
-    
+
     }
 
 
     // Plak sınıfı: Plakların temel özelliklerini içerir
-    public class Plak
+    public class Plak : Müzik //Miras alma, kalıtım
     {
-        public string PlakAd;
-        public string PlakSanatci;
-        public double PlakFiyat;
         public string PlakTur;
+        public string DosyaYolu { get; set; }
+        
 
         // Yapıcı metod (constructor)
-        public Plak(string plak_ad, string plak_sanatci, double plak_fiyat, string plak_tur)
+        public Plak(string plak_ad, string plak_sanatci, double plak_fiyat, string plak_tur, string dosyaYolu)
         {
-            PlakAd = plak_ad;
-            PlakSanatci = plak_sanatci;
-            PlakFiyat = plak_fiyat;
+            Ad = plak_ad;
+            Sanatci = plak_sanatci;
+            Fiyat = plak_fiyat;
             PlakTur = plak_tur;
+            DosyaYolu = dosyaYolu;
         }
-        public override string ToString()
+        public void MuzikCal()
         {
-            return $"{PlakAd} - {PlakSanatci}, Fiyat: {PlakFiyat}TL";
+            if (System.IO.File.Exists(DosyaYolu))  // Dosya yolunu kontrol et
+            {
+                try
+                {
+                    using (var audioFile = new AudioFileReader(DosyaYolu)) // Dosyayı oku
+                    using (var outputDevice = new WaveOutEvent()) // Ses cihazı
+                    {
+                        outputDevice.Init(audioFile); // Cihazı başlat
+                        outputDevice.Play(); // Müzik çalmaya başla
+                        Console.WriteLine("Müzik çalıyor...");
+                        Console.WriteLine("Müziği durdurmak için bir tuşa basın.");
+                        Console.ReadKey(); // Kullanıcı tuşa basana kadar müzik çalar
+                        outputDevice.Stop(); // Müzik durdur
+                        Console.WriteLine("Müzik durduruldu.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Müzik çalarken bir hata oluştu: " + ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Hata: Belirtilen müzik dosyası bulunamadı.");
+            }
         }
+
     }
 
     // Plak çalar cihazları için sınıf
-    class PlakCihazi
+    class PlakCihazi : Müzik //Miras alma, kalıtım
     {
-        public string PlakCihazAd { get; set; } // Cihaz adı
-        public double PlakCihazFiyat { get; set; } // Cihaz fiyatı
-
         // Yapıcı metod (constructor)
         public PlakCihazi(string plak_cihaz_ad, double plak_cihaz_fiyat)
         {
-            PlakCihazAd = plak_cihaz_ad;
-            PlakCihazFiyat = plak_cihaz_fiyat;
-        }
-        public override string ToString()
-        {
-            return $"{PlakCihazAd}, Fiyat: {PlakCihazFiyat}TL";
+            Ad = plak_cihaz_ad;
+            Fiyat = plak_cihaz_fiyat;
         }
     }
 
@@ -234,7 +269,7 @@ namespace PlakSatisUygulamasi
 
 
     // Plak ve cihaz yönetimini sağlayan sınıf
-    class PlakYonetimi
+    class PlakYonetimi 
     {
         private List<Plak> plaklar; // Plak listesini saklar
         private List<PlakCihazi> cihazlar; // Cihaz listesini saklar
@@ -245,53 +280,53 @@ namespace PlakSatisUygulamasi
             // Varsayılan plaklar oluşturuluyor
             plaklar = new List<Plak>
             {
-                new Plak("Bohemian Rhapsody", "Queen", 150, "Rock"),
-                new Plak("Hotel California", "Eagles", 140, "Rock"),
-                new Plak("Back in Black", "AC/DC", 135, "Rock"),
-                new Plak("Stairway to Heaven", "Led Zeppelin", 160, "Rock"),
-                new Plak("Born to Run", "Bruce Springsteen", 145, "Rock"),
+                    new Plak("Bohemian Rhapsody", "Queen", 450, "Rock", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\rock1.mp3"),// Kendi file path'inizle değiştirin.
+                    new Plak("Hotel California", "Eagles", 540, "Rock", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\rock2.mp3"),
+                    new Plak("Back in Black", "AC/DC", 435, "Rock", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\rock3.mp3"),
+                    new Plak("Stairway to Heaven", "Led Zeppelin", 460, "Rock", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\rock4.mp3"),
+                    new Plak("Born to Run", "Bruce Springsteen", 445, "Rock", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\rock5.mp3"),
 
-                new Plak("Like a Virgin", "Madonna", 120, "Pop"),
-                new Plak("Thriller", "Michael Jackson", 150, "Pop"),
-                new Plak("1989", "Taylor Swift", 140, "Pop"),
-                new Plak("Future Nostalgia", "Dua Lipa", 130, "Pop"),
-                new Plak("Teenage Dream", "Katy Perry", 125, "Pop"),
+                    new Plak("Like a Virgin", "Madonna", 520, "Pop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\pop1.mp3"),
+                    new Plak("Thriller", "Michael Jackson", 450, "Pop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\pop2.mp3"),
+                    new Plak("Look What You Made Me Do", "Taylor Swift", 340, "Pop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\pop3.mp3"),
+                    new Plak("Future Nostalgia", "Dua Lipa", 530, "Pop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\pop4.mp3"),
+                    new Plak("Teenage Dream", "Katy Perry", 425, "Pop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\pop5.mp3"),
 
-                new Plak("The College Dropout", "Kanye West", 130, "Hiphop"),
-                new Plak("To Pimp a Butterfly", "Kendrick Lamar", 140, "Hiphop"),
-                new Plak("Illmatic", "Nas", 135, "Hiphop"),
-                new Plak("Enter the Wu-Tang", "Wu-Tang Clan", 150, "Hiphop"),
-                new Plak("The Chronic", "Dr. Dre", 145, "Hiphop"),
+                    new Plak("Vultures", "Kanye West", 430, "Hiphop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\hiphop1.mp3"),
+                    new Plak("Beaverskin", "Plaqueboymax", 340, "Hiphop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\hiphop2.mp3"),
+                    new Plak("Sky", "Playboi Carti", 435, "Hiphop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\hiphop3.mp3"),
+                    new Plak("HIM ALL ALONG", "Gunna", 350, "Hiphop",@"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\hiphop4.mp3"),
+                    new Plak("FLYTROOP", "Yeat", 445, "Hiphop", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\hiphop5.mp3"),
 
-                new Plak("Kind of Blue", "Miles Davis", 150, "Jazz"),
-                new Plak("Take Five", "Dave Brubeck", 140, "Jazz"),
-                new Plak("Blue Train", "John Coltrane", 135, "Jazz"),
-                new Plak("A Love Supreme", "John Coltrane", 160, "Jazz"),
-                new Plak("Bitches Brew", "Miles Davis", 145, "Jazz"),
+                    new Plak("Blue In Green", "Miles Davis", 450, "Jazz", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\jazz1.mp3"),
+                    new Plak("Take Five", "Dave Brubeck", 540, "Jazz", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\jazz2.mp3"),
+                    new Plak("Blue Train", "John Coltrane", 335, "Jazz", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\jazz3.mp3"),
+                    new Plak("A Love Supreme", "John Coltrane", 360, "Jazz", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\jazz4.mp3"),
+                    new Plak("So What   ", "Miles Davis", 345, "Jazz", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\jazz5.mp3"),
 
-                new Plak("The Thrill is Gone", "B.B. King", 150, "Blues"),
-                new Plak("Crossroad Blues", "Robert Johnson", 140, "Blues"),
-                new Plak("Born Under a Bad Sign", "Albert King", 135, "Blues"),
-                new Plak("Mannish Boy", "Muddy Waters", 160, "Blues"),
-                new Plak("Pride and Joy", "Stevie Ray Vaughan", 145, "Blues")
+                    new Plak("The Thrill is Gone", "B.B. King", 350, "Blues", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\blues1.mp3"),
+                    new Plak("Crossroad Blues", "Robert Johnson", 440, "Blues",@"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\blues2.mp3"),
+                    new Plak("Born Under a Bad Sign", "Albert King", 135, "Blues", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\blues3.mp3"),
+                    new Plak("Mannish Boy", "Muddy Waters", 460, "Blues",@"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\blues4.mp3"),
+                    new Plak("Pride and Joy", "Stevie Ray Vaughan", 545, "Blues", @"C:\Users\b\source\repos\ProjeNTP\ProjeNTP\Müzikler\blues5.mp3")
             };
 
             // Varsayılan cihazlar oluşturuluyor
             cihazlar = new List<PlakCihazi>
             {
-                new PlakCihazi("Modern Plak Çalar", 300),
-                new PlakCihazi("Vintage Plak Çalar", 450),
-                new PlakCihazi("Bluetooth Plak Çalar", 500)
+                new PlakCihazi("KTOOLS PERA Pikap Hoparlörlü", 3538),
+                new PlakCihazi("KTOOLS LABEL Pikap Hoparlörlü", 450),
+                new PlakCihazi("Midex GR-50 Nostaljik Gramofon FM Radyolu 33/45 Devir Pikap Plak Çalar Bluetooth", 10439)
             };
         }
 
-        // Belirli bir türdeki plakları listeler
-        public void PlaklariListele(string tür)// Kullanıcıdan plak tur bilgisi alınır. 12345... ile
+        // Overload metod!
+        public void Listele(string plak_tür)// Kullanıcıdan plak tur bilgisi alınır. 1 2 3 4 5... ile
         {
             //.Where(p => p.Tur.Equals(tur, StringComparison.OrdinalIgnoreCase)) Plaklar listesinden, Tur özelliği tur değişkenine eşit olanları filtreler (büyük/küçük harf farkı gözetmeden).
             //.ToList() Filtrelenen sonuçları bir listeye dönüştür.
             //Bu Rock, Pop, Hiphop vb. tarzında farklı türleri içeren listeden kullanıcıdan alınmış olan tür bilgisie göre seçer.
-            var secilenPlaklar = plaklar.Where(p => p.PlakTur.Equals(tür, StringComparison.OrdinalIgnoreCase)).ToList();
+            var secilenPlaklar = plaklar.Where(p => p.PlakTur.Equals(plak_tür, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (secilenPlaklar.Count == 0)
             {
@@ -299,7 +334,7 @@ namespace PlakSatisUygulamasi
                 return;
             }
 
-            Console.WriteLine($"--- {tür} Türündeki Plaklar ---");
+            Console.WriteLine($"--- {plak_tür} Türündeki Plaklar ---");
             for (int i = 0; i < secilenPlaklar.Count; i++)
             {
                 Console.WriteLine($"{i + 1}. {secilenPlaklar[i]}"); // 1. Plak bilgisi 
@@ -317,9 +352,10 @@ namespace PlakSatisUygulamasi
             return null;
         }
 
-        // Mevcut plak çalar cihazlarını listeler
-        public void CihazlariListele()
+        // Overload metod!
+        public void Listele()
         {
+            Console.WriteLine("");
             Console.WriteLine("--- Mevcut Plak Çalar Cihazları ---");
             for (int i = 0; i < cihazlar.Count; i++)
             {
@@ -342,13 +378,14 @@ namespace PlakSatisUygulamasi
     // Ana program akışı
     class Program
     {
-        static void Main(string[] args)
+            static void Main(string[] args)
         {
+            
             PlakYonetimi plakYonetimi = new PlakYonetimi(); // Plak yönetimi nesnesi oluşturuluyor
             EnstrümanYonetimi enstrumanYonetimi = new EnstrümanYonetimi();
             double toplamTutar = 0; // Toplam tutar başlangıç değeri
 
-            Console.WriteLine("--- Plak Satış Platformuna Hoşgeldiniz! ---");
+            Console.WriteLine("--- Müzik Ürünleri Alışveriş Sistemine Hoşgeldiniz! ---");
 
             // Kullanıcı bilgilerini al
             Console.Write("Lütfen isminizi girin: ");
@@ -373,14 +410,15 @@ namespace PlakSatisUygulamasi
                 Console.WriteLine("2. Plak Cihazı Satın Al");
                 Console.WriteLine("3. Enstrüman Satın Al");
                 Console.WriteLine("4. Çıkış");
+                Console.WriteLine("");
                 Console.Write("Bir seçim yapınız: ");
 
                 string anaSecim = Console.ReadLine();
-
                 if (anaSecim == "1") // Plak Satın Alma
                 {
                     while (true)
                     {
+                        Console.WriteLine("");
                         Console.WriteLine("--- Plak Türleri ---");
                         Console.WriteLine("1. Rock");
                         Console.WriteLine("2. Pop");
@@ -388,36 +426,38 @@ namespace PlakSatisUygulamasi
                         Console.WriteLine("4. Jazz");
                         Console.WriteLine("5. Blues");
                         Console.WriteLine("6. Ana Menüye Dön");
+                        Console.WriteLine("");
                         Console.Write("Bir tür seçiniz: ");
 
                         string turSecim = Console.ReadLine();
 
                         if (turSecim == "6") break; // Ana menüye dön
 
-                        string tur = "";
-                        if (turSecim == "1") tur = "Rock";
-                        else if (turSecim == "2") tur = "Pop";
-                        else if (turSecim == "3") tur = "Hiphop";
-                        else if (turSecim == "4") tur = "Jazz";
-                        else if (turSecim == "5") tur = "Blues";
+                        string plak_tur = "";
+                        if (turSecim == "1") plak_tur = "Rock";
+                        else if (turSecim == "2") plak_tur = "Pop";
+                        else if (turSecim == "3") plak_tur = "Hiphop";
+                        else if (turSecim == "4") plak_tur = "Jazz";
+                        else if (turSecim == "5") plak_tur = "Blues";
 
 
-                        if (tur == "")
+                        if (plak_tur == "")
                         {
                             Console.WriteLine("Geçersiz seçim. Lütfen tekrar deneyiniz.");
                             continue;
                         }
 
-                        plakYonetimi.PlaklariListele(tur); // Seçilen türdeki plakları listele
-
-                        Console.Write("Satın almak istediğiniz plağın numarasını girin: ");
+                        plakYonetimi.Listele(plak_tur); // Seçilen türdeki plakları listele
+                        Console.WriteLine("");
+                        Console.Write("Dinlemek ve satın almak istediğiniz plağın numarasını girin: ");
                         if (int.TryParse(Console.ReadLine(), out int secim))
                         {
-                            var secilenPlak = plakYonetimi.PlakSec(tur, secim); // Kullanıcı seçimini al
+                            var secilenPlak = plakYonetimi.PlakSec(plak_tur, secim); // Kullanıcı seçimini al
                             if (secilenPlak != null)
                             {
-                                toplamTutar += secilenPlak.PlakFiyat; // Fiyatı toplam tutara ekle
-                                Console.WriteLine($"{secilenPlak.PlakAd} sepete eklendi. Toplam tutar: {toplamTutar}TL");
+                                secilenPlak.MuzikCal();
+                                toplamTutar += secilenPlak.Fiyat; // Fiyatı toplam tutara ekle
+                                Console.WriteLine($"{secilenPlak.Ad} sepete eklendi. Toplam tutar: {toplamTutar}TL");
                             }
                             else
                             {
@@ -439,16 +479,17 @@ namespace PlakSatisUygulamasi
                 }
                 else if (anaSecim == "2") // Plak Cihazı Satın Alma
                 {
-                    plakYonetimi.CihazlariListele(); // Mevcut cihazları listele
-
+                    plakYonetimi.Listele(); // Mevcut cihazları listele
+                    Console.WriteLine("");
                     Console.Write("Satın almak istediğiniz cihazın numarasını girin: ");
                     if (int.TryParse(Console.ReadLine(), out int cihazSecim))
                     {
+                        Console.WriteLine("");
                         var secilenCihaz = plakYonetimi.CihazSec(cihazSecim); // Kullanıcı seçimini al
                         if (secilenCihaz != null)
                         {
-                            toplamTutar += secilenCihaz.PlakCihazFiyat; // Fiyatı toplam tutara ekle
-                            Console.WriteLine($"{secilenCihaz.PlakCihazAd} sepete eklendi. Toplam tutar: {toplamTutar}TL");
+                            toplamTutar += secilenCihaz.Fiyat; // Fiyatı toplam tutara ekle
+                            Console.WriteLine($"{secilenCihaz.Ad} sepete eklendi. Toplam tutar: {toplamTutar}TL");
                         }
                         else
                         {
@@ -464,13 +505,15 @@ namespace PlakSatisUygulamasi
                 {
                     while (true)
                     {
+                        Console.WriteLine("");
                         Console.WriteLine("--- Enstrüman Türleri ---");
                         Console.WriteLine("1. Gitar");
                         Console.WriteLine("2. Piyano");
                         Console.WriteLine("3. Keman");
                         Console.WriteLine("4. Ana Menüye Dön");
+                        Console.WriteLine("");
                         Console.Write("Bir tür seçiniz: ");
-                        
+
                         string enstrumanSecim = Console.ReadLine();
                         if (enstrumanSecim == "4") break;
 
@@ -485,16 +528,17 @@ namespace PlakSatisUygulamasi
                             continue;
                         }
 
-                        enstrumanYonetimi.EnstrümanTürleriListele(ens_tür); // Türdeki enstrümanları listele
+                        enstrumanYonetimi.Listele(ens_tür); // Türdeki enstrümanları listele
 
                         Console.Write("Satın almak istediğiniz enstrümanın numarasını girin: ");
                         if (int.TryParse(Console.ReadLine(), out int ens_seçim)) //out burada secim değişkeninin TryParse metodu tarafından verilen değeri almasını sağlar
                         {
+                            Console.WriteLine("");
                             var secilenEnstruman = enstrumanYonetimi.EnstrümanSec(ens_tür, ens_seçim);
                             if (secilenEnstruman != null)
                             {
-                                toplamTutar += secilenEnstruman.EnstrümanFiyat;
-                                Console.WriteLine($"{secilenEnstruman.EnstrümanAd} sepete eklendi. Toplam tutar: {toplamTutar}TL");
+                                toplamTutar += secilenEnstruman.Fiyat;
+                                Console.WriteLine($"{secilenEnstruman.Ad} sepete eklendi. Toplam tutar: {toplamTutar}TL");
                             }
                             else
                             {
@@ -517,6 +561,7 @@ namespace PlakSatisUygulamasi
 
                 else if (anaSecim == "4") // Çıkış
                 {
+                    Console.WriteLine("");
                     Console.WriteLine($"Toplam tutarınız: {toplamTutar}TL İyi günler dileriz {isim} {soyisim}!");
                     break; // Programdan çıkış
                 }
